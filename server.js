@@ -1,7 +1,7 @@
+require('dotenv').config();
 const mongoose = require("mongoose");
 const express = require("express");
 const Candidate = require("./Candidate");
-const config = require("./config");
 const cors = require("cors"); 
 
 const app = express();
@@ -14,7 +14,7 @@ app.use(cors());
 app.use(express.json());
 
 mongoose
-  .connect(config.mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log("Connected to MongoDB");
     // Start the server once MongoDB is connected
