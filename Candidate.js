@@ -6,6 +6,10 @@ const candidateSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  img: {
+    type: String,
+    required: true
+  },
   party: {
     type: String,
     required: true

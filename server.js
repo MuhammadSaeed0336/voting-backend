@@ -1,23 +1,28 @@
+const http = require('http');
 require('dotenv').config();
 const mongoose = require("mongoose");
 const express = require("express");
 const Candidate = require("./Candidate");
 const cors = require("cors"); 
+const socketIo = require('socket.io');
+
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+const server = http.createServer(app);
+const io = socketIo(server);
+
 // Middleware to enable CORS
 app.use(cors());
 
-// Middleware to parse JSON request bodies
 app.use(express.json());
 
 mongoose
   .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log("Connected to MongoDB");
-    // Start the server once MongoDB is connected
+    
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });
@@ -36,8 +41,8 @@ app.get("/candidates", async (req, res) => {
 
 app.post("/candidates", async (req, res) => {
   try {
-    const { name, party, age, education } = req.body;
-    const candidate = new Candidate({ name, party, age, education });
+    const { name, party, age, education ,img } = req.body;
+    const candidate = new Candidate({ name, party, age, education,img });
     await candidate.save();
     res.status(201).json(candidate);
   } catch (err) {
@@ -54,6 +59,9 @@ app.post("/vote/:id", async (req, res) => {
     }
     candidate.score += 1;
     await candidate.save();
+
+    io.emit('vote', { candidateId: candidate._id, score: candidate.score });
+
     res.json({ message: "Vote submitted successfully", candidate });
   } catch (err) {
     res.status(500).json({ message: err.message });
