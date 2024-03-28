@@ -1,8 +1,8 @@
-require('dotenv').config();
+require("dotenv").config();
 const mongoose = require("mongoose");
 const express = require("express");
 const Candidate = require("./Candidate");
-const cors = require("cors"); 
+const cors = require("cors");
 const http = require("http");
 const socketIo = require("socket.io");
 
@@ -18,11 +18,14 @@ app.use(express.json());
 const io = socketIo(server, {
   cors: {
     origin: "*",
-  }
+  },
 });
 
 mongoose
-  .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => {
     console.log("Connected to MongoDB");
     server.listen(PORT, () => {
@@ -31,7 +34,7 @@ mongoose
   })
   .catch((err) => console.error("Error connecting to MongoDB:", err));
 
-  // WebSocket connection handling
+// WebSocket connection handling
 io.on("connection", (socket) => {
   console.log("A client connected");
 
@@ -66,7 +69,7 @@ app.post("/candidates", async (req, res) => {
   }
 });
 
-app.post("/vote/:id", async (req, res) => {
+app.get("/vote/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const candidate = await Candidate.findById(id);
@@ -76,7 +79,10 @@ app.post("/vote/:id", async (req, res) => {
     candidate.score += 1;
     await candidate.save();
 
-    io.emit("vote_updated", { candidateId: candidate._id, newScore: candidate.score });
+    io.emit("vote_updated", {
+      candidateId: candidate._id,
+      newScore: candidate.score,
+    });
 
     res.json({ message: "Vote submitted successfully", candidate });
   } catch (err) {
