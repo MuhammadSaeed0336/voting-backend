@@ -109,7 +109,7 @@ app.get("/vote/:id", async (req, res) => {
   try {
     const candidate = await Candidate.findById(id);
     if (!candidate.status) {
-      return res.status(200).json({ message: "Voting is disabled" });
+      return res.status(400).json({ message: "Voting is disabled" });
     }
 
     if (!candidate) {
