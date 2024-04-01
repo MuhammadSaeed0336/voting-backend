@@ -25,6 +25,10 @@ const candidateSchema = new mongoose.Schema({
   score: {
     type: Number,
     default: 0
+  },
+  status: {
+    type: Boolean,
+    default: true
   }
 });
 
