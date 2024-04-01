@@ -69,35 +69,32 @@ app.post("/candidates", async (req, res) => {
   }
 });
 
-// app.get("/vote/:id", async (req, res) => {
-//   const { id } = req.params;
+// app.put("/voting/status", async (req, res) => {
 //   try {
-//     const candidate = await Candidate.findById(id);
-//     if (!candidate) {
-//       return res.status(404).json({ message: "Candidate not found" });
-//     }
-//     candidate.score += 1;
-//     await candidate.save();
+//     const { status } = req.body;
+//     await Candidate.updateMany({}, { $set: { status } });
 
-//     io.emit("vote_updated", {
-//       candidateId: candidate._id,
-//       newScore: candidate.score,
-//     });
+//     io.emit("voting_status_updated", { status });
 
-//     res.json({ message: "Vote submitted successfully", candidate });
+//     res.json({ message: "Voting status updated successfully" });
 //   } catch (err) {
 //     res.status(500).json({ message: err.message });
 //   }
 // });
 
-app.put("/voting/status", async (req, res) => {
+app.put("/vote/:id/status", async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
   try {
-    const { status } = req.body;
-    await Candidate.updateMany({}, { $set: { status } });
+    const candidate = await Candidate.findById(id);
+    if (!candidate) {
+      return res.status(404).json({ message: "Candidate not found" });
+    }
 
-    io.emit("voting_status_updated", { status });
+    candidate.status = status;
+    await candidate.save();
 
-    res.json({ message: "Voting status updated successfully" });
+    res.json({ message: "Candidate status updated successfully", candidate });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -115,7 +112,6 @@ app.get("/vote/:id", async (req, res) => {
     if (!candidate) {
       return res.status(404).json({ message: "Candidate not found" });
     }
-
 
     candidate.score += 1;
     candidate.status = false; 
