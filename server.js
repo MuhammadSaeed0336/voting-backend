@@ -114,7 +114,7 @@ app.get("/vote/:id", async (req, res) => {
     }
 
     candidate.score += 1;
-    candidate.status = false; 
+    // candidate.status = false; 
 
     await candidate.save();
 
