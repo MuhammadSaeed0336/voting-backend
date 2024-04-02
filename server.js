@@ -82,24 +82,21 @@ app.post("/candidates", async (req, res) => {
 //   }
 // });
 
-app.put("/vote/:id/status", async (req, res) => {
+app.put("/vote/:id", async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
   try {
-    const candidate = await Candidate.findById(id);
-    if (!candidate) {
+    const updatedCandidate = await Candidate.findByIdAndUpdate(id, { status }, { new: true });
+
+    if (!updatedCandidate) {
       return res.status(404).json({ message: "Candidate not found" });
     }
 
-    candidate.status = status;
-    await candidate.save();
-
-    res.json({ message: "Candidate status updated successfully", candidate });
+    res.json({ message: "Candidate status updated successfully", candidate: updatedCandidate });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
-
 
 app.get("/vote/:id", async (req, res) => {
   const { id } = req.params;
@@ -114,8 +111,6 @@ app.get("/vote/:id", async (req, res) => {
     }
 
     candidate.score += 1;
-    // candidate.status = false; 
-
     await candidate.save();
 
     io.emit("vote_updated", {
